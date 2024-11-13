@@ -1,0 +1,32 @@
+stages:
+  - build
+  - deploy
+  # - log
+
+variables:
+    GIT_CLEAN_FLAGS: none
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  script:
+    - cat "$APPLICATION_PROD_PROPERTIES" > "$(pwd)/src/main/resources/application.properties"
+    - mvn clean install
+  after_script:
+    - echo "***** Build stage is succeed. *****"
+  tags:
+    - qarzim_uz-backend
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  script:
+    - sudo systemctl restart $SERVICE_NAME
+  after_script:
+    - echo "***** Deploy stage is succeed. *****"
+  tags:
+    - qarzim_uz-backend
+  only:
+    - main
+  when: manual
+
